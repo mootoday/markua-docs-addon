@@ -4,6 +4,7 @@
   "description": "Write Leanpub books in Google Docs.",
   "main": "index.js",
   "scripts": {
+    "deploy": "clasp push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
