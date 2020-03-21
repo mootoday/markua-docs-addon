@@ -2,3 +2,15 @@
 
 # markua-docs-addon
 Write Markua (used by Leanpub) books in Google Docs.
+
+> **Note**: This is neither a Leanpub nor a Google offical project.
+
+## Get Started
+
+**TODO**:
+* Publish the add-on to the G Suite marketplace
+* Add a link here with instructions
+
+## Contributing
+
+Please see [Contributing](CONTRIBUTING.md).
