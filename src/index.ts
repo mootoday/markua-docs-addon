@@ -19,8 +19,8 @@
  */
 const onOpen = (e) => {
   DocumentApp.getUi().createAddonMenu()
-      .addItem('Open Markua Sidebar', 'showSidebar')
-      .addToUi();
+    .addItem('Open Markua Sidebar', 'showSidebar')
+    .addToUi();
 }
 
 /**
@@ -44,7 +44,7 @@ const onInstall = (e) => {
  * the mobile add-on version.
  */
 const showSidebar = () => {
-  const ui = HtmlService.createTemplateFromFile('src/sidebar').evaluate().setTitle('Markua Docs Add-on');
+  const ui = HtmlService.createTemplateFromFile('src/sidebar').evaluate().setTitle('Markua Support');
   DocumentApp.getUi().showSidebar(ui);
 }
 
@@ -58,3 +58,7 @@ const include = (filename: string) => HtmlService.createHtmlOutputFromFile(filen
  * Starts the conversion process. Called by the sidebar's client-side javascript.
  */
 const convertDocToMarkua = () => Converter.convert();
+
+const insertSnippet = (snippetInfo: SnippetInserter.SnippetInfo) => {
+  SnippetInserter.insertSnippet(snippetInfo);
+};
