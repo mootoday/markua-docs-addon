@@ -3,11 +3,20 @@
   import AuthorSnippets from "./components/author-snippets/index.svelte";
   import DocsToMarkua from "./components/docs-to-markua/index.svelte";
   import Footer from "./components/footer.svelte";
+
+  let openDialog;
 </script>
 
 <main>
   <AddonIntro />
-  <AuthorSnippets />
-  <DocsToMarkua />
+
+  <button on:click={() => (openDialog = 'snippets')}>Author Snippets</button>
+  <button on:click={() => (openDialog = 'convert')}>Convert to Markua</button>
+
+  {#if openDialog === 'snippets'}
+    <AuthorSnippets />
+  {:else if openDialog === 'convert'}
+    <DocsToMarkua />
+  {/if}
   <Footer />
 </main>
