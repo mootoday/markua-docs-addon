@@ -7,7 +7,14 @@
   let openDialog;
 </script>
 
-<main>
+<style>
+  .branding-below {
+    bottom: 0px;
+    top: 0;
+  }
+</style>
+
+<main class="sidebar branding-below">
   <AddonIntro />
 
   <button
