@@ -3,6 +3,10 @@
 # markua-docs-addon
 Write Markua (used by Leanpub) books in Google Docs.
 
+**Snippets**: Insert "aside", "blurb" and other snippets with a click. No need to memorize the syntax.
+
+**Convert to Markua**: Convert an entire document to Markua.
+
 > **Note**: This is neither a Leanpub nor a Google offical project.
 
 ## Get Started

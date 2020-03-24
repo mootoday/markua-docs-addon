@@ -6,5 +6,11 @@
   "oauthScopes": [
     "https://www.googleapis.com/auth/documents.currentonly",
     "https://www.googleapis.com/auth/script.container.ui"
-  ]
+  ],
+  "addOns": {
+    "common": {
+      "name": "Markua Support",
+      "logoUrl": "https://drive.google.com/file/d/17jUOuZuoQzFBPXkIFkAF_iH0Ck32dUD3/view"
+    }
+  }
 }
