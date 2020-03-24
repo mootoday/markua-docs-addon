@@ -1,10 +1,9 @@
 namespace ParagraphConverter {
   const PARAGRAPH_CHILD_PROCESSORS = {
-    [DocumentApp.ElementType.TEXT]: (element) => TextConverter.convert(element)
+    [DocumentApp.ElementType.TEXT]: (element: GoogleAppsScript.Document.Element) => TextConverter.convert(element.asText())
   };
 
-  const getParagraphHeadingPrefix = (element: GoogleAppsScript.Document.Element) => {
-    const paragraph = element.asParagraph();
+  const getParagraphHeadingPrefix = (paragraph: GoogleAppsScript.Document.Paragraph) => {
     let headingPrefix = '';
 
     switch (paragraph.getHeading()) {
@@ -26,10 +25,9 @@ namespace ParagraphConverter {
     return headingPrefix;
   }
 
-  const getParagraphHeadingSuffix = (element: GoogleAppsScript.Document.Element) => element.asParagraph().getHeading() === DocumentApp.ParagraphHeading.TITLE ? " #" : "";
+  const getParagraphHeadingSuffix = (paragraph: GoogleAppsScript.Document.Paragraph) => paragraph.getHeading() === DocumentApp.ParagraphHeading.TITLE ? " #" : "";
 
-  export const convert = (element: GoogleAppsScript.Document.Element) => {
-    const paragraph = element.asParagraph();
+  export const convert = (paragraph: GoogleAppsScript.Document.Paragraph) => {
     if (paragraph.getNumChildren() === 0) {
       return '';
     }
