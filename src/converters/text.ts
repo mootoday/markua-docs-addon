@@ -19,6 +19,49 @@ namespace TextConverter {
     return count;
   }
 
+  const isBoldItalicUnderline = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isBold(position) &&
+    textElement.isItalic(position) &&
+    textElement.isUnderline(position);
+  const insertBoldItalicUnderline = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "_", 4);
+
+  const isBoldItalic = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isBold(position) &&
+    textElement.isItalic(position);
+  const insertBoldItalic = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "_", 3);
+
+  const isBold = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isBold(position);
+  const insertBold = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "*", 2);
+
+  const isItalic = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isItalic(position);
+  const insertItalic = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "*");
+
+  const isUnderline = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isUnderline(position);
+  const insertUnderline = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "_");
+
+  const isStrikethrough = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isStrikethrough(position);
+  const insertStrikethrough = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "~", 2);
+
+  const TEXT_FORMATTERS = [{
+    test: isBoldItalicUnderline,
+    format: insertBoldItalicUnderline,
+    isExclusive: true
+  }, {
+    test: isBoldItalic,
+    format: insertBoldItalic,
+    isExclusive: true
+  }, {
+    test: isBold,
+    format: insertBold
+  }, {
+    test: isItalic,
+    format: insertItalic
+  }, {
+    test: isUnderline,
+    format: insertUnderline
+  }, {
+    test: isStrikethrough,
+    format: insertStrikethrough
+  }];
+
   /**
    * Converts a Text element, including its formatting such as bold and italic.
    *
@@ -33,57 +76,44 @@ namespace TextConverter {
     const attributeIndices = textElement.getTextAttributeIndices();
     attributeIndices.forEach((attributeIndex, index) => {
       // Opening formatting
-      if (textElement.isBold(attributeIndex) &&
-        textElement.isItalic(attributeIndex) &&
-        textElement.isUnderline(attributeIndex)) {
-          skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "_", 4);
-      } else if (textElement.isBold(attributeIndex) &&
-        textElement.isUnderline(attributeIndex)) {
-          skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "_", 3);
+      const openingFormatters = TEXT_FORMATTERS.filter(formatter => formatter.test(textElement, attributeIndex));
+      if (openingFormatters.some(formatter => formatter.isExclusive)) {
+        const exclusiveOpeningFormatter = openingFormatters.find(formatter => formatter.isExclusive);
+        skipIndex += exclusiveOpeningFormatter.format(formattedStringArray, attributeIndex + skipIndex);
       } else {
-        if (textElement.isBold(attributeIndex)) {
-          skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "*", 2);
-        }
-        if (textElement.isItalic(attributeIndex)) {
-          skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "*");
-        }
-        if (textElement.isUnderline(attributeIndex)) {
-          skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "_");
-        }
-        if (textElement.isStrikethrough(attributeIndex)) {
-          skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "~", 2);
-        }
+        openingFormatters.forEach(formatter => {
+          skipIndex += formatter.format(formattedStringArray, attributeIndex + skipIndex);
+        })
       }
 
-
       // Closing formatting
-      // In reverse order compared to the opening formatting to ensure proper
-      // Markua syntax.
       if (index > 0) {
-        if (textElement.isBold(attributeIndices[index - 1]) &&
-          textElement.isItalic(attributeIndices[index - 1]) &&
-          textElement.isUnderline(attributeIndices[index - 1])) {
-            skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "_", 4);
-        } else if (textElement.isBold(attributeIndices[index - 1]) &&
-          textElement.isUnderline(attributeIndices[index - 1])) {
-            skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "_", 3);
+        // In reverse order compared to the opening formatting to ensure proper Markua syntax.
+        const closingFormatters = TEXT_FORMATTERS.slice().reverse().filter(formatter => formatter.test(textElement, attributeIndices[index - 1]));
+        if (closingFormatters.some(formatter => formatter.isExclusive)) {
+          const exclusiveClosingFormatter = closingFormatters.find(formatter => formatter.isExclusive);
+          skipIndex += exclusiveClosingFormatter.format(formattedStringArray, attributeIndex + skipIndex);
         } else {
-          if (textElement.isStrikethrough(attributeIndices[index - 1])) {
-            skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "~", 2);
-          }
-          if (textElement.isUnderline(attributeIndices[index - 1])) {
-            skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "_");
-          }
-          if (textElement.isItalic(attributeIndices[index - 1])) {
-            skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "*");
-          }
-          if (textElement.isBold(attributeIndices[index - 1])) {
-            skipIndex += insertCharacter(formattedStringArray, attributeIndex + skipIndex, "*", 2);
-          }
+          closingFormatters.forEach(formatter => {
+            skipIndex += formatter.format(formattedStringArray, attributeIndex + skipIndex);
+          })
         }
       }
     });
 
+    // If a Text element contains formatting on the last character, we need to deal with that.
+    // E.g. "A text with the last word **bold**"
+    // The final two asterisks in this case need to be added to adhere to the Markua spec.
+    const lastCharacterIndex = textElement.getText().length;
+    const closingFormatters = TEXT_FORMATTERS.slice().reverse().filter(formatter => formatter.test(textElement, lastCharacterIndex - 1));
+    if (closingFormatters.some(formatter => formatter.isExclusive)) {
+      const exclusiveClosingFormatter = closingFormatters.find(formatter => formatter.isExclusive);
+      skipIndex += exclusiveClosingFormatter.format(formattedStringArray, lastCharacterIndex + skipIndex);
+    } else {
+      closingFormatters.forEach(formatter => {
+        skipIndex += formatter.format(formattedStringArray, lastCharacterIndex + skipIndex);
+      })
+    }
     return formattedStringArray.join("");
   }
 
