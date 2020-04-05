@@ -1,10 +1,22 @@
 <script>
   import AddonIntro from "./components/addon-intro.svelte";
   import AuthorSnippets from "./components/author-snippets/index.svelte";
+  import Chapters from "./components/chapters/index.svelte";
   import DocsToMarkua from "./components/docs-to-markua/index.svelte";
   import Footer from "./components/footer.svelte";
 
   let openDialog;
+
+  const navButtons = [{
+    action: "snippets",
+    label: "Snippets"
+  }, {
+    action: "convert",
+    label: "Convert"
+  // }, {
+  //   action: "chapters",
+  //   label: "Chapters"
+  }];
 </script>
 
 <style>
@@ -17,23 +29,21 @@
 <main class="sidebar branding-below">
   <AddonIntro />
 
-  <button
-    class:action={openDialog === 'snippets'}
-    disabled={openDialog === 'snippets'}
-    on:click={() => (openDialog = 'snippets')}>
-    Author Snippets
-  </button>
-  <button
-    class:action={openDialog === 'convert'}
-    disabled={openDialog === 'convert'}
-    on:click={() => (openDialog = 'convert')}>
-    Convert to Markua
-  </button>
+  {#each navButtons as navButton}
+    <button
+      class:action={openDialog === navButton.action}
+      disabled={openDialog === navButton.action}
+      on:click={() => (openDialog = navButton.action)}>
+      {navButton.label}
+    </button>
+  {/each}
 
   {#if openDialog === 'snippets'}
     <AuthorSnippets />
   {:else if openDialog === 'convert'}
     <DocsToMarkua />
+  {:else if openDialog === 'chapters'}
+    <Chapters />
   {/if}
   <Footer />
 </main>
