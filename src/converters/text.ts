@@ -1,6 +1,35 @@
 namespace TextConverter {
-  const isCode = (textElement: GoogleAppsScript.Document.Text) => textElement.getFontFamily() === 'Roboto Mono';
-  const convertCode = (textElement: GoogleAppsScript.Document.Text) => '```\n' + textElement.getText() + '\n```'
+
+  interface TextFormatterTester {
+    (textElement: GoogleAppsScript.Document.Text, position: number): boolean;
+  }
+
+  interface TextFormatterInserter {
+    // Find a more generic way to deal with link URLs. At the moment, they're the only exception to the rule.
+    (arrayOfCharacters: string[], position: number, linkUrl?: string)
+  }
+
+  interface TextFormatterBase {
+    test: TextFormatterTester;
+    isExclusive?: boolean;
+  }
+
+  interface TextFormatterSimple extends TextFormatterBase {
+    format: TextFormatterInserter;
+  }
+
+  interface TextFormatterAdvanced extends TextFormatterBase {
+    formatOpening: TextFormatterInserter;
+    formatClosing: TextFormatterInserter;
+  }
+
+  const isSimpleTextFormatter = (formatter: TextFormatterSimple | TextFormatterAdvanced): formatter is TextFormatterSimple => (formatter as TextFormatterSimple).format !== undefined;
+
+  const isCodeBlock = (textElement: GoogleAppsScript.Document.Text) => textElement.getFontFamily() === 'Roboto Mono';
+  const convertCodeBlock = (textElement: GoogleAppsScript.Document.Text) => '```\n' + textElement.getText() + '\n```'
+
+  const isAbsoluteLinkBlock = (textElement: GoogleAppsScript.Document.Text) => textElement.getText() === textElement.getLinkUrl();
+  const convertAbsoluteLinkBlock = (textElement: GoogleAppsScript.Document.Text) => `<${textElement.getLinkUrl()}>`;
 
   /**
    * Inserts a given character into an array of characters.
@@ -12,35 +41,52 @@ namespace TextConverter {
    *
    * @returns The number of times the character was inserted.
    */
-  const insertCharacter = (arrayOfCharacters: Array<string>, position: number, character: string, count: number = 1): number => {
+  const insertCharacter = (arrayOfCharacters: string[], position: number, character: string, count: number = 1): number => {
     character.repeat(count).split("").forEach((character: string, index: number) => {
       arrayOfCharacters.splice(position + index, 0, character);
     });
     return count;
   }
 
-  const isBoldItalicUnderline = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isBold(position) &&
+  const isLinkUrl: TextFormatterTester = (textElement, position) => !!textElement.getLinkUrl(position);
+  const isAbsoluteLinkUrl: TextFormatterTester = (textElement, position) => textElement.getLinkUrl(position) && textElement.getText().substring(position, position + textElement.getLinkUrl(position).length) === textElement.getLinkUrl(position);
+  const insertAbsoluteLinkUrlOpening: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "<");
+  const insertAbsoluteLinkUrlClosing: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, ">");
+  
+  // A link looks like [link text](absolute_url)
+  const insertInlineLinkUrlOpening: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "[");
+  const insertInlineLinkUrlClosing: TextFormatterInserter = (arrayOfCharacters, position, linkUrl) => {
+    let insertCharactersCount = insertCharacter(arrayOfCharacters, position, "]");
+    insertCharactersCount += insertCharacter(arrayOfCharacters, position + insertCharactersCount, "(");
+    linkUrl.split("").forEach(character => {
+      insertCharactersCount += insertCharacter(arrayOfCharacters, position + insertCharactersCount, character);
+    });
+    insertCharactersCount += insertCharacter(arrayOfCharacters, position + insertCharactersCount, ")");
+    return insertCharactersCount;
+  };
+
+  const isBoldItalicUnderline: TextFormatterTester = (textElement, position) => textElement.isBold(position) &&
     textElement.isItalic(position) &&
     textElement.isUnderline(position);
-  const insertBoldItalicUnderline = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "_", 4);
+  const insertBoldItalicUnderline: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "_", 4);
 
-  const isBoldItalic = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isBold(position) &&
+  const isBoldItalic: TextFormatterTester = (textElement, position) => textElement.isBold(position) &&
     textElement.isItalic(position);
-  const insertBoldItalic = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "_", 3);
+  const insertBoldItalic: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "_", 3);
 
-  const isBold = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isBold(position);
-  const insertBold = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "*", 2);
+  const isBold: TextFormatterTester = (textElement, position) => textElement.isBold(position);
+  const insertBold: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "*", 2);
 
-  const isItalic = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isItalic(position);
-  const insertItalic = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "*");
+  const isItalic: TextFormatterTester = (textElement, position) => textElement.isItalic(position);
+  const insertItalic: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "*");
 
-  const isUnderline = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isUnderline(position);
-  const insertUnderline = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "_");
+  const isUnderline: TextFormatterTester = (textElement, position) => textElement.isUnderline(position);
+  const insertUnderline: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "_");
 
-  const isStrikethrough = (textElement: GoogleAppsScript.Document.Text, position: number) => textElement.isStrikethrough(position);
-  const insertStrikethrough = (arrayOfCharacters: Array<string>, position: number) => insertCharacter(arrayOfCharacters, position, "~", 2);
+  const isStrikethrough: TextFormatterTester = (textElement, position) => textElement.isStrikethrough(position);
+  const insertStrikethrough: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "~", 2);
 
-  const TEXT_FORMATTERS = [{
+  const TEXT_FORMATTERS: Array<TextFormatterSimple | TextFormatterAdvanced> = [{
     test: isBoldItalicUnderline,
     format: insertBoldItalicUnderline,
     isExclusive: true
@@ -55,11 +101,19 @@ namespace TextConverter {
     test: isItalic,
     format: insertItalic
   }, {
-    test: isUnderline,
+    test: (textElement, position) => isUnderline(textElement, position) && !isLinkUrl(textElement, position),
     format: insertUnderline
   }, {
     test: isStrikethrough,
     format: insertStrikethrough
+  }, {
+    test: isAbsoluteLinkUrl,
+    formatOpening: insertAbsoluteLinkUrlOpening,
+    formatClosing: insertAbsoluteLinkUrlClosing
+  }, {
+    test: (textElement, position) => isLinkUrl(textElement, position) && !isAbsoluteLinkUrl(textElement, position),
+    formatOpening: insertInlineLinkUrlOpening,
+    formatClosing: insertInlineLinkUrlClosing
   }];
 
   /**
@@ -79,10 +133,18 @@ namespace TextConverter {
       const openingFormatters = TEXT_FORMATTERS.filter(formatter => formatter.test(textElement, attributeIndex));
       if (openingFormatters.some(formatter => formatter.isExclusive)) {
         const exclusiveOpeningFormatter = openingFormatters.find(formatter => formatter.isExclusive);
-        skipIndex += exclusiveOpeningFormatter.format(formattedStringArray, attributeIndex + skipIndex);
+        if (isSimpleTextFormatter(exclusiveOpeningFormatter)) {
+          skipIndex += exclusiveOpeningFormatter.format(formattedStringArray, attributeIndex + skipIndex);
+        } else {
+          skipIndex += exclusiveOpeningFormatter.formatOpening(formattedStringArray, attributeIndex + skipIndex);
+        }
       } else {
         openingFormatters.forEach(formatter => {
-          skipIndex += formatter.format(formattedStringArray, attributeIndex + skipIndex);
+          if (isSimpleTextFormatter(formatter)) {
+            skipIndex += formatter.format(formattedStringArray, attributeIndex + skipIndex);
+          } else {
+            skipIndex += formatter.formatOpening(formattedStringArray, attributeIndex + skipIndex);
+          }
         })
       }
 
@@ -92,10 +154,18 @@ namespace TextConverter {
         const closingFormatters = TEXT_FORMATTERS.slice().reverse().filter(formatter => formatter.test(textElement, attributeIndices[index - 1]));
         if (closingFormatters.some(formatter => formatter.isExclusive)) {
           const exclusiveClosingFormatter = closingFormatters.find(formatter => formatter.isExclusive);
-          skipIndex += exclusiveClosingFormatter.format(formattedStringArray, attributeIndex + skipIndex);
+          if (isSimpleTextFormatter(exclusiveClosingFormatter)) {
+            skipIndex += exclusiveClosingFormatter.format(formattedStringArray, attributeIndex + skipIndex);
+          } else {
+            skipIndex += exclusiveClosingFormatter.formatClosing(formattedStringArray, attributeIndex + skipIndex);
+          }
         } else {
           closingFormatters.forEach(formatter => {
-            skipIndex += formatter.format(formattedStringArray, attributeIndex + skipIndex);
+            if (isSimpleTextFormatter(formatter)) {
+              skipIndex += formatter.format(formattedStringArray, attributeIndex + skipIndex);
+            } else {
+              skipIndex += formatter.formatClosing(formattedStringArray, attributeIndex + skipIndex, textElement.getLinkUrl(attributeIndices[index - 1]));
+            }
           })
         }
       }
@@ -108,18 +178,29 @@ namespace TextConverter {
     const closingFormatters = TEXT_FORMATTERS.slice().reverse().filter(formatter => formatter.test(textElement, lastCharacterIndex - 1));
     if (closingFormatters.some(formatter => formatter.isExclusive)) {
       const exclusiveClosingFormatter = closingFormatters.find(formatter => formatter.isExclusive);
-      skipIndex += exclusiveClosingFormatter.format(formattedStringArray, lastCharacterIndex + skipIndex);
+      if (isSimpleTextFormatter(exclusiveClosingFormatter)) {
+        skipIndex += exclusiveClosingFormatter.format(formattedStringArray, lastCharacterIndex + skipIndex);
+      } else {
+        skipIndex += exclusiveClosingFormatter.formatClosing(formattedStringArray, lastCharacterIndex + skipIndex);
+      }
     } else {
       closingFormatters.forEach(formatter => {
-        skipIndex += formatter.format(formattedStringArray, lastCharacterIndex + skipIndex);
+        if (isSimpleTextFormatter(formatter)) {
+          skipIndex += formatter.format(formattedStringArray, lastCharacterIndex + skipIndex);
+        } else {
+          skipIndex += formatter.formatClosing(formattedStringArray, lastCharacterIndex + skipIndex, textElement.getLinkUrl(lastCharacterIndex - 1));
+        }
       })
     }
     return formattedStringArray.join("");
   }
 
   const TEXT_CONVERTERS = [{
-    test: isCode,
-    convert: convertCode
+    test: isCodeBlock,
+    convert: convertCodeBlock
+  }, {
+    test: isAbsoluteLinkBlock,
+    convert: convertAbsoluteLinkBlock
   }, {
     // Catch all (keep at the end of this array)
     test: () => true,
