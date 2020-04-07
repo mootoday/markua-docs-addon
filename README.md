@@ -9,11 +9,9 @@ Write Markua (used by Leanpub) books in Google Docs.
 
 > **Note**: This is neither a Leanpub nor a Google offical project.
 
-## Get Started
+## Installation
 
-**TODO**:
-* Publish the add-on to the G Suite marketplace
-* Add a link here with instructions
+The project website can be found at https://www.mikenikles.com/markua-support/, with a link to the G Suite Marketplace from where the add-on can be installed.
 
 ## Contributing
 
