@@ -12,12 +12,3 @@
     Insert
   </button>
 </BaseSnippet>
-
-<!-- <details>
-  <summary>Aside</summary>
-  <button
-    class="blue"
-    on:click={() => dispatch('insertSnippet', { type: 'aside' })}>
-    Insert
-  </button>
-</details> -->
