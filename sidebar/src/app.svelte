@@ -24,19 +24,26 @@
     bottom: 0px;
     top: 0;
   }
+
+  .nav-toggles {
+    display: flex;
+    justify-content: space-evenly;
+  }
 </style>
 
 <main class="sidebar branding-below">
   <AddonIntro />
 
-  {#each navButtons as navButton}
-    <button
-      class:action={openDialog === navButton.action}
-      disabled={openDialog === navButton.action}
-      on:click={() => (openDialog = navButton.action)}>
-      {navButton.label}
-    </button>
-  {/each}
+  <div class="nav-toggles">
+    {#each navButtons as navButton}
+      <button
+        class:action={openDialog === navButton.action}
+        disabled={openDialog === navButton.action}
+        on:click={() => (openDialog = navButton.action)}>
+        {navButton.label}
+      </button>
+    {/each}
+  </div>
 
   {#if openDialog === 'snippets'}
     <AuthorSnippets />
