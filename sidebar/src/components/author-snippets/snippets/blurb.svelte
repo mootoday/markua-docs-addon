@@ -62,6 +62,7 @@
     Insert
   </button>
   <button
+    disabled={clazz === ""}
     on:click={() => {
       clazz = '';
     }}>
