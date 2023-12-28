@@ -63,4 +63,9 @@ const insertSnippet = (snippetInfo: SnippetInserter.SnippetInfo) => {
   SnippetInserter.insertSnippet(snippetInfo);
 };
 
-const fetchChapters = () => ChaptersFetcher.fetchChapters();
+const fetchChapters = () => {
+  if (!ChaptersFetcher.isEnvironmentValid())
+    throw new Error("invalid-environment");
+
+  return ChaptersFetcher.fetchChapters();
+}
