@@ -1,9 +1,16 @@
 namespace TextConverter {
-  export const convert = (element: GoogleAppsScript.Document.Element) => {
-    const textElement = element.asText();
-    if (textElement.getFontFamily() === 'Roboto Mono') {
-      return '```\n' + textElement.getText() + '\n```';
-    }
-    return textElement.getText();
+  const isCode = (textElement: GoogleAppsScript.Document.Text) => textElement.getFontFamily() === 'Roboto Mono';
+  const convertCode = (textElement: GoogleAppsScript.Document.Text) => '```\n' + textElement.getText() + '\n```'
+
+  const TEXT_CONVERTERS = [{
+    test: isCode,
+    convert: convertCode
+  }, {
+    test: () => true,
+    convert: (textElement: GoogleAppsScript.Document.Text) => textElement.getText()
+  }];
+  export const convert = (textElement: GoogleAppsScript.Document.Text) => {
+    const converter = TEXT_CONVERTERS.find((textConverter) => textConverter.test(textElement));
+    return converter.convert(textElement);
   }
 }

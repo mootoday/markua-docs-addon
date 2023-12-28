@@ -1,6 +1,5 @@
 namespace ListItemConverter {
-  export const convert = (element: GoogleAppsScript.Document.Element) => {
-    const listItem = element.asListItem();
+  export const convert = (listItem: GoogleAppsScript.Document.ListItem) => {
     const levelOfNesting = listItem.getNestingLevel();
     const listItemNestingPrefix = ' '.repeat(4).repeat(levelOfNesting);
     let listItemPrefix = '';

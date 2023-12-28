@@ -2,8 +2,8 @@ namespace Converter {
   // const convertParagraph = () => ParagraphConverter.convert;
 
   const ELEMENT_CONVERTERS = {
-    [DocumentApp.ElementType.LIST_ITEM]: (element) => ListItemConverter.convert(element),
-    [DocumentApp.ElementType.PARAGRAPH]: (element) => ParagraphConverter.convert(element)
+    [DocumentApp.ElementType.LIST_ITEM]: (element: GoogleAppsScript.Document.Element) => ListItemConverter.convert(element.asListItem()),
+    [DocumentApp.ElementType.PARAGRAPH]: (element: GoogleAppsScript.Document.Element) => ParagraphConverter.convert(element.asParagraph())
   };
 
   export const convert = () => {
