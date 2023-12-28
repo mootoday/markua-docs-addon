@@ -9,6 +9,7 @@
     "build:ui:generate": "run-p build:ui:generate:*",
     "build:ui:generate:css": "echo '<style>' > ./src/stylesheet.html && cat ./sidebar/public/build/bundle.css >> ./src/stylesheet.html && echo '</style>' >> ./src/stylesheet.html",
     "build:ui:generate:js": "echo '<script>' > ./src/javascript.html && cat ./sidebar/public/build/bundle.js >> ./src/javascript.html && echo '</script>' >> ./src/javascript.html",
+    "clasp:login": "clasp login --no-localhost",
     "deploy": "run-s build && clasp push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
