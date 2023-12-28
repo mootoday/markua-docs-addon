@@ -13,9 +13,9 @@
   }, {
     action: "convert",
     label: "Convert"
-  }, {
-    action: "chapters",
-    label: "Chapters"
+  // }, {
+  //   action: "chapters",
+  //   label: "Chapters"
   }];
 </script>
 
