@@ -62,3 +62,5 @@ const convertDocToMarkua = () => Converter.convert();
 const insertSnippet = (snippetInfo: SnippetInserter.SnippetInfo) => {
   SnippetInserter.insertSnippet(snippetInfo);
 };
+
+const fetchChapters = () => ChaptersFetcher.fetchChapters();
