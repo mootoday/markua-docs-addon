@@ -49,7 +49,19 @@ namespace TextConverter {
   }
 
   const isLinkUrl: TextFormatterTester = (textElement, position) => !!textElement.getLinkUrl(position);
-  const isAbsoluteLinkUrl: TextFormatterTester = (textElement, position) => textElement.getLinkUrl(position) && textElement.getText().substring(position, position + textElement.getLinkUrl(position).length) === textElement.getLinkUrl(position);
+  const isAbsoluteLinkUrl: TextFormatterTester = (textElement, position) => {
+    if (!textElement.getLinkUrl(position)) {
+      return false;
+    }
+
+    const urlLinkRangeElement = textElement.findText(textElement.getLinkUrl(position));
+    if (!urlLinkRangeElement) {
+      return false;
+    }
+    const substringStartPosition = urlLinkRangeElement.isPartial() ? urlLinkRangeElement.getStartOffset() : 0;
+    const substringEndPosition = urlLinkRangeElement.isPartial() ? urlLinkRangeElement.getEndOffsetInclusive() : substringStartPosition + textElement.getLinkUrl(position).length;
+    return textElement.getText().substring(substringStartPosition, substringEndPosition + 1) === textElement.getLinkUrl(position);
+  };
   const insertAbsoluteLinkUrlOpening: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, "<");
   const insertAbsoluteLinkUrlClosing: TextFormatterInserter = (arrayOfCharacters, position) => insertCharacter(arrayOfCharacters, position, ">");
   
