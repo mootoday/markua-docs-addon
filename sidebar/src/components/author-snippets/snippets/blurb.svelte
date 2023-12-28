@@ -54,6 +54,7 @@
   </form>
   <button
     class="blue"
+    disabled={clazz === ""}
     on:click={() => dispatch('insertSnippet', {
         type: 'blurb',
         attributes: { clazz }
