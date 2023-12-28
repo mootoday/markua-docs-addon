@@ -44,7 +44,7 @@ const onInstall = (e) => {
  * the mobile add-on version.
  */
 const showSidebar = () => {
-  const ui = HtmlService.createTemplateFromFile('src/sidebar').evaluate().setTitle('Markua Docs Add-on');
+  const ui = HtmlService.createTemplateFromFile('src/sidebar').evaluate().setTitle('Markua Support');
   DocumentApp.getUi().showSidebar(ui);
 }
 

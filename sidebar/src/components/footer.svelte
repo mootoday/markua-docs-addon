@@ -8,7 +8,7 @@
 
 <div class="sidebar bottom">
   <span class="gray branding-text">
-    Markua Docs Add-on by
+    Markua Support by
     <a href="https://www.twitter.com/@mikenikles" target="_blank">
       @mikenikles
     </a>
