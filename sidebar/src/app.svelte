@@ -10,8 +10,18 @@
 <main>
   <AddonIntro />
 
-  <button on:click={() => (openDialog = 'snippets')}>Author Snippets</button>
-  <button on:click={() => (openDialog = 'convert')}>Convert to Markua</button>
+  <button
+    class:action={openDialog === 'snippets'}
+    disabled={openDialog === 'snippets'}
+    on:click={() => (openDialog = 'snippets')}>
+    Author Snippets
+  </button>
+  <button
+    class:action={openDialog === 'convert'}
+    disabled={openDialog === 'convert'}
+    on:click={() => (openDialog = 'convert')}>
+    Convert to Markua
+  </button>
 
   {#if openDialog === 'snippets'}
     <AuthorSnippets />
