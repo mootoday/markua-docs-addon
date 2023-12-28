@@ -1,5 +1,6 @@
 <script>
   import Aside from "./snippets/aside.svelte";
+  import Blurb from "./snippets/blurb.svelte";
 
   const insertSnippet = (event) => {
     google.script.run.insertSnippet(event.detail);
@@ -22,3 +23,4 @@
 </p>
 
 <Aside on:insertSnippet={insertSnippet}/>
+<Blurb on:insertSnippet={insertSnippet}/>
