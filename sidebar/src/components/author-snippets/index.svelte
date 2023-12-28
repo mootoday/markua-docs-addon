@@ -1,15 +1,24 @@
+<script>
+  import Aside from "./snippets/aside.svelte";
+
+  const insertSnippet = (event) => {
+    google.script.run.insertSnippet(event.detail);
+  }
+</script>
+
 <h3>Author snippets</h3>
 <p>
   Use this section to insert Markua-specific elements, such as
-  <em>asides</em>
+  <span>asides</span>
   ,
-  <em>blurbs</em>
+  <span>blurbs</span>
   ,
-  <em>blockquotes</em>
+  <span>blockquotes</span>
   , etc. No need to remember the exact syntax!
 </p>
+<p>
+  <strong>Note:</strong>
+  Place your cursor where you want the snippet to be inserted.
+</p>
 
-<details>
-  <summary>Open</summary>
-  TODO
-</details>
+<Aside on:insertSnippet={insertSnippet}/>

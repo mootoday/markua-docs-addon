@@ -19,8 +19,8 @@
  */
 const onOpen = (e) => {
   DocumentApp.getUi().createAddonMenu()
-      .addItem('Open Markua Sidebar', 'showSidebar')
-      .addToUi();
+    .addItem('Open Markua Sidebar', 'showSidebar')
+    .addToUi();
 }
 
 /**
@@ -58,3 +58,7 @@ const include = (filename: string) => HtmlService.createHtmlOutputFromFile(filen
  * Starts the conversion process. Called by the sidebar's client-side javascript.
  */
 const convertDocToMarkua = () => Converter.convert();
+
+const insertSnippet = (snippetInfo: SnippetInserter.SnippetInfo) => {
+  SnippetInserter.insertSnippet(snippetInfo);
+};
