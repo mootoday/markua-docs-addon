@@ -55,10 +55,8 @@ namespace TextConverter {
         }
       }
 
-
       // Closing formatting
-      // In reverse order compared to the opening formatting to ensure proper
-      // Markua syntax.
+      // In reverse order compared to the opening formatting to ensure proper Markua syntax.
       if (index > 0) {
         if (textElement.isBold(attributeIndices[index - 1]) &&
           textElement.isItalic(attributeIndices[index - 1]) &&
@@ -83,6 +81,33 @@ namespace TextConverter {
         }
       }
     });
+
+    // If a Text element contains formatting on the last character, we need to deal with that.
+    // E.g. "A text with the last word **bold**"
+    // The final two asterisks in this case need to be added to adhere to the Markua spec.
+    const lastCharacterIndex = textElement.getText().length;
+    if (textElement.isBold(lastCharacterIndex - 1) &&
+      textElement.isItalic(lastCharacterIndex - 1) &&
+      textElement.isUnderline(lastCharacterIndex - 1)) {
+        skipIndex += insertCharacter(formattedStringArray, lastCharacterIndex + skipIndex, "_", 4);
+    } else if (textElement.isBold(lastCharacterIndex - 1) &&
+      textElement.isUnderline(lastCharacterIndex - 1)) {
+        skipIndex += insertCharacter(formattedStringArray, lastCharacterIndex + skipIndex, "_", 3);
+    } else {
+      if (textElement.isStrikethrough(lastCharacterIndex - 1)) {
+        skipIndex += insertCharacter(formattedStringArray, lastCharacterIndex + skipIndex, "~", 2);
+      }
+      if (textElement.isUnderline(lastCharacterIndex - 1)) {
+        skipIndex += insertCharacter(formattedStringArray, lastCharacterIndex + skipIndex, "_");
+      }
+      if (textElement.isItalic(lastCharacterIndex - 1)) {
+        skipIndex += insertCharacter(formattedStringArray, lastCharacterIndex + skipIndex, "*");
+      }
+      if (textElement.isBold(lastCharacterIndex - 1)) {
+        skipIndex += insertCharacter(formattedStringArray, lastCharacterIndex + skipIndex, "*", 2);
+      }
+    }
+
 
     return formattedStringArray.join("");
   }
