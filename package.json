@@ -1,15 +1,20 @@
 {
-  "name": "leanpub-docs",
+  "name": "markua-docs-addon",
   "version": "0.0.1",
-  "description": "Write Leanpub books in Google Docs.",
+  "description": "Write Markua (used by Leanpub) books in Google Docs.",
   "main": "index.js",
   "scripts": {
-    "deploy": "clasp push",
+    "build": "rm -fr ./sidebar/public/build && run-s build:ui build:ui:generate",
+    "build:ui": "cd ./sidebar && npm run build",
+    "build:ui:generate": "run-p build:ui:generate:*",
+    "build:ui:generate:css": "echo '<style>' > ./src/stylesheet.html && cat ./sidebar/public/build/bundle.css >> ./src/stylesheet.html && echo '</style>' >> ./src/stylesheet.html",
+    "build:ui:generate:js": "echo '<script>' > ./src/javascript.html && cat ./sidebar/public/build/bundle.js >> ./src/javascript.html && echo '</script>' >> ./src/javascript.html",
+    "deploy": "run-s build && clasp push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mikenikles/leanpub-docs.git"
+    "url": "git+https://github.com/mikenikles/markua-docs-addon.git"
   },
   "keywords": [
     "leanpub",
@@ -21,11 +26,12 @@
   "author": "Mike Nikles, @mikenikles",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mikenikles/leanpub-docs/issues"
+    "url": "https://github.com/mikenikles/markua-docs-addon/issues"
   },
-  "homepage": "https://github.com/mikenikles/leanpub-docs#readme",
+  "homepage": "https://github.com/mikenikles/markua-docs-addon#readme",
   "devDependencies": {
     "@google/clasp": "^2.3.0",
-    "@types/google-apps-script": "^1.0.11"
+    "@types/google-apps-script": "^1.0.11",
+    "npm-run-all": "^4.1.5"
   }
 }
