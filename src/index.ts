@@ -44,6 +44,17 @@ const onInstall = (e) => {
  * the mobile add-on version.
  */
 const showSidebar = () => {
-  const ui = HtmlService.createHtmlOutputFromFile('src/sidebar').setTitle('Markua');
+  const ui = HtmlService.createTemplateFromFile('src/sidebar').evaluate().setTitle('Markua Docs Add-on');
   DocumentApp.getUi().showSidebar(ui);
 }
+
+/**
+ * Parses the file with the given file name. This is used to inject CSS and Javascript
+ * in an HTML file.
+ */
+const include = (filename: string) => HtmlService.createHtmlOutputFromFile(filename).getContent();
+
+/**
+ * Starts the conversion process. Called by the sidebar's client-side javascript.
+ */
+const convertDocToMarkua = () => Converter.convert();
