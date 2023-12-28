@@ -1,14 +1,14 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import BaseSnippet from "./base.svelte";
 
   const dispatch = createEventDispatcher();
 </script>
 
-<details>
-  <summary>Aside</summary>
+<BaseSnippet title="Aside">
   <button
     class="blue"
     on:click={() => dispatch('insertSnippet', { type: 'aside' })}>
     Insert
   </button>
-</details>
+</BaseSnippet>
