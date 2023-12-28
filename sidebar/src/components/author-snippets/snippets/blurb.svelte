@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import BaseSnippet from "./base.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -26,13 +27,25 @@
   let clazz = "";
 </script>
 
-<details>
-  <summary>Blurb</summary>
+<style>
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  label {
+    flex: 0 50%;
+  }
+
+  button {
+    margin-top: 10px;
+  }
+</style>
+
+<BaseSnippet title="Blurb">
   <form>
     {#each classes as classItem, i}
-      {#if i % 3 === 0}
-        <br />
-      {/if}
       <label>
         <input type="radio" bind:group={clazz} value={classItem.value} />
         {classItem.value[0].toUpperCase() + classItem.value.substr(1)}
@@ -41,8 +54,16 @@
   </form>
   <button
     class="blue"
-    on:click={() => dispatch('insertSnippet', { type: 'blurb', attributes: {clazz} })}>
+    on:click={() => dispatch('insertSnippet', {
+        type: 'blurb',
+        attributes: { clazz }
+      })}>
     Insert
   </button>
-  <button on:click={() => {clazz = "";}}>Reset</button>
-</details>
+  <button
+    on:click={() => {
+      clazz = '';
+    }}>
+    Reset
+  </button>
+</BaseSnippet>
